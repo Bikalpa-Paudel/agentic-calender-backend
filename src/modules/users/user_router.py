@@ -22,6 +22,16 @@ def create_user(body: UserCreate, db=Depends(get_db)):
     response = service.create_user(name=body.name, email=body.email, password=body.password)
     return response
 
+@router.post("/google/init")
+def google_init(redirect_uri = str, db=Depends(get_db)):
+    return UserService(UserRepository(db)).google_auth_init(redirect_uri)
+
+@router.post("/google")
+async def google_auth(code:str, db=Depends(get_db)):
+    service =  UserService(UserRepository(db))
+    response = service.google_login(code=code)
+    return response
+
 
 @router.get("/me", response_model=UserResponse)
 def get_me(db=Depends(get_db), current_user: UserResponse = Depends(auth_middleware_validation)):
